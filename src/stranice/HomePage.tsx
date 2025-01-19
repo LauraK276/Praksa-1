@@ -1,7 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function HomePage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.removeItem("rezultatKviz");
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
