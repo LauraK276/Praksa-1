@@ -76,6 +76,6 @@ export const pitanja = [
       "/images/google3.png",
       "/images/google4.png",
     ],
-    tocanOdgovor: 2, // Indeks ispravne slike - mora biti treca po redu
+    tocanOdgovor: 2,
   },
 ];

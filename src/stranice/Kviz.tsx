@@ -12,16 +12,20 @@ function Kviz() {
   const provjeriOdgovor = () => {
     setPotvrdjeno(true);
 
+    let noviBodovi = bodovi;
     if (pitanje.tip === "nadopuna" || pitanje.tip === "slika") {
       if (
         typeof odabraniOdgovor === "string" &&
         odabraniOdgovor.toLowerCase().trim() === pitanje.tocanOdgovor.toLowerCase().trim()
       ) {
-        setBodovi(bodovi + 1);
+        noviBodovi++;
       }
     } else if (odabraniOdgovor === pitanje.tocanOdgovor) {
-      setBodovi(bodovi + 1);
+      noviBodovi++;
     }
+
+    setBodovi(noviBodovi);
+    localStorage.setItem("rezultatKviz", JSON.stringify(noviBodovi));
   };
 
   const sljedecePitanje = () => {
@@ -36,9 +40,15 @@ function Kviz() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100 px-6">
-      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-2xl">
-        <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">{pitanje.pitanje}</h1>
+
+    
+
+    <div className="flex flex-col items-center justify-center h-screen bg-[#1A1B41] text-white px-6">
+      <div className="bg-white/10 backdrop-blur-lg shadow-lg p-6 w-full max-w-2xl rounded-lg border border-white/20">
+      <h1 className="text-3xl font-bold mb-6 text-center text-[#00FFFF]">
+  {pitanje.pitanje}
+</h1>
+
 
         {/* ABCD Odgovori */}
         {pitanje.tip === "abc" && pitanje.odgovori && (
@@ -46,16 +56,16 @@ function Kviz() {
             {pitanje.odgovori.map((odgovor: string, index: number) => (
               <button
                 key={index}
-                className={`px-6 py-3 border rounded-lg transition font-medium ${
+                className={`px-6 py-3 border rounded-lg transition font-medium text-white border-white/30 ${
                   potvrdjeno
                     ? index === pitanje.tocanOdgovor
-                      ? "bg-green-500 text-white"
+                      ? "bg-green-500 shadow-green-500/50"
                       : index === odabraniOdgovor
-                      ? "bg-red-500 text-white"
-                      : "bg-gray-200"
+                      ? "bg-red-500 shadow-red-500/50"
+                      : "bg-white/20"
                     : odabraniOdgovor === index
-                    ? "bg-blue-400 text-white"
-                    : "bg-gray-100 hover:bg-gray-300"
+                    ? "bg-[#6A5ACD] shadow-[#6A5ACD]/50"
+                    : "bg-white/10 hover:shadow-[#00FFFF]/50"
                 }`}
                 onClick={() => setOdabraniOdgovor(index)}
                 disabled={potvrdjeno}
@@ -74,23 +84,37 @@ function Kviz() {
             )}
             <input
               type="text"
-              className="border px-4 py-2 rounded-lg mt-4 w-full text-center"
+              className="border px-4 py-2 rounded-lg mt-4 w-full text-center bg-white/10 text-white"
               value={odabraniOdgovor || ""}
               onChange={(e) => setOdabraniOdgovor(e.target.value)}
               disabled={potvrdjeno}
             />
-            {!potvrdjeno && odabraniOdgovor === "" && (
-              <p className="text-red-500 mt-2">Molimo unesite odgovor!</p>
-            )}
           </div>
         )}
+        
+        {pitanje.tip === "slika_vise" && pitanje.slike && (
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {pitanje.slike.map((slika: string, index: number) => (
+              <img
+                key={index}
+                src={slika}
+                alt={`Opcija ${index + 1}`}
+                className={`cursor-pointer border-4 rounded-lg shadow-lg transition ${
+                  odabraniOdgovor === index ? "border-[#00FFFF] shadow-[#00FFFF]/50" : "border-gray-300"
+                }`}
+                onClick={() => setOdabraniOdgovor(index)}
+              />
+            ))}
+         </div>
+        )}
+
 
         {/* Točno / Netočno */}
         {pitanje.tip === "tocno_netocno" && (
           <div className="flex space-x-4">
             <button
-              className={`px-6 py-3 border rounded-lg font-medium ${
-                odabraniOdgovor === "točno" ? "bg-blue-400 text-white" : "bg-gray-100 hover:bg-gray-300"
+              className={`px-6 py-3 border rounded-lg font-medium text-white border-white/30 ${
+                odabraniOdgovor === "točno" ? "bg-blue-400 shadow-[#00FFFF]/50" : "bg-white/10 hover:shadow-[#00FFFF]/50"
               }`}
               onClick={() => setOdabraniOdgovor("točno")}
               disabled={potvrdjeno}
@@ -98,8 +122,8 @@ function Kviz() {
               Točno
             </button>
             <button
-              className={`px-6 py-3 border rounded-lg font-medium ${
-                odabraniOdgovor === "netočno" ? "bg-blue-400 text-white" : "bg-gray-100 hover:bg-gray-300"
+              className={`px-6 py-3 border rounded-lg font-medium text-white border-white/30 ${
+                odabraniOdgovor === "netočno" ? "bg-blue-400 shadow-[#00FFFF]/50" : "bg-white/10 hover:shadow-[#00FFFF]/50"
               }`}
               onClick={() => setOdabraniOdgovor("netočno")}
               disabled={potvrdjeno}
@@ -109,27 +133,10 @@ function Kviz() {
           </div>
         )}
 
-        {/* Pitanje s više slika */}
-        {pitanje.tip === "slika_vise" && pitanje.slike && (
-          <div className="grid grid-cols-2 gap-4">
-            {pitanje.slike.map((slika: string, index: number) => (
-              <img
-                key={index}
-                src={slika}
-                alt={`Opcija ${index + 1}`}
-                className={`cursor-pointer border-4 rounded-lg shadow-lg transition ${
-                  odabraniOdgovor === index ? "border-blue-500" : "border-gray-300"
-                }`}
-                onClick={() => setOdabraniOdgovor(index)}
-              />
-            ))}
-          </div>
-        )}
-
         <div className="mt-6 text-center">
           {!potvrdjeno ? (
             <button
-              className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+              className="bg-[#6A5ACD] text-white px-6 py-3 rounded-lg font-medium hover:shadow-[#00FFFF]/50 transition animate-pulse"
               onClick={provjeriOdgovor}
               disabled={odabraniOdgovor === null || odabraniOdgovor === ""}
             >
@@ -137,13 +144,24 @@ function Kviz() {
             </button>
           ) : (
             <button
-              className="bg-purple-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition mt-4"
+              className="bg-purple-500 text-white px-6 py-3 rounded-lg font-medium hover:shadow-[#00FFFF]/50 transition mt-4"
               onClick={sljedecePitanje}
             >
               Sljedeće pitanje
             </button>
           )}
         </div>
+
+        {/* Završi kviz link */}
+        <p
+          className="mt-4 text-sm text-gray-400 cursor-pointer hover:text-[#00FFFF] transition duration-300 text-center"
+          onClick={() => {
+            localStorage.setItem("rezultatKviz", JSON.stringify(bodovi));
+            window.location.href = "/rezultat";
+          }}
+        >
+          Završi kviz
+        </p>
       </div>
     </div>
   );
